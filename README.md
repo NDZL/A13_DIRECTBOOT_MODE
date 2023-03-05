@@ -10,7 +10,7 @@ ON A TC58 BSP 13-08-07 IT TURNS OUT THAT
 - WITH NONE, SWIPE, PATTERN A BOOT-AWARE APP IS ABLE TO ACCESS BOTH THE DPS (DEVICE PROTECTED STORAGE) AND THE CES (CREDENTIAL ENCRYPTED STORAGE) BEFORE THE FIRST UNLOCK AFTER REBOOT
 - WITH PIN AND PASSWORD A BOOT-AWARE APP *IS* ABLE TO ACCESS DPS WHILE IT *CANNOT* ACCESS CES BEFORE THE FIRST UNLOCK AFTER REBOOT
 
-Here is a screenshot from the app. Where you an exception under the DPS section, that is failed attempt to access CES after boot. It was logged under DPS since that context is always available.
+Here is a screenshot from the app. Where you spot an exception under the DPS section, that is failed attempt to access CES after boot. It was logged under DPS since that context is always available.
 
 ![image](https://user-images.githubusercontent.com/11386676/222977925-ca15cd47-b55b-41db-a0e7-2e550eb67dc4.png)
 
