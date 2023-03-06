@@ -64,10 +64,19 @@ public class MainActivity extends AppCompatActivity {
         //REGISTER  RECEIVER
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.intent.action.LOCKED_BOOT_COMPLETED");
-        filter.addAction("android.intent.action.USER_UNLOCKED");
-        filter.addAction("com.symbol.datawedge.DWDEMO");
-        filter.addCategory("android.intent.category.DEFAULT");
+
+       // filter.addAction("com.ndzl.DW");
+       // filter.addCategory("android.intent.category.DEFAULT");
+
         registerReceiver(new IntentsReceiver(), filter);
+
+        IntentFilter userUnlockedFilter = new IntentFilter();
+
+        //userUnlockedFilter.addAction("android.intent.action.USER_UNLOCKED");
+        //registerReceiver(new UserUnlockedIntentReceiver(), userUnlockedFilter);
+        //Log.d("com.ndzl.targetelevator", "==REGISTERING RECEIVER! 000");
+
+
 
         // creating and reading a file in the Device Encrypted Storage
         String fileNameDPS = "sampleDPS.txt";
@@ -120,15 +129,21 @@ public class MainActivity extends AppCompatActivity {
             ces_fileContent = "IO WRITE EXCP:"+e.getMessage();
         }
 
+
          */
+
         try {
             ces_fileContent = readFile(ctxCES, fileNameCES);
         } catch (IOException e) {
             ces_fileContent = "IO READ EXCP:"+e.getMessage();
         }
 
-        tvOut.setText("DEVICE PROTECTED STORAGE\nFILE:\n"+pathAndFileDPS+"\nCONTENT:\n"+dps_fileContent+"\n\nCREDENTIAL ENCRYPTED STORAGE\nFILE:\n"+pathAndFileCES+"\nCONTENT:\n"+ces_fileContent);
 
+
+        tvOut.setText("DEVICE PROTECTED STORAGE\nPrinted at "+DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+"\nFILE:\n"+pathAndFileDPS+"\nCONTENT:\n"+dps_fileContent+"\n\nCREDENTIAL ENCRYPTED STORAGE\nFILE:\n"+pathAndFileCES+"\nCONTENT:\n"+ces_fileContent+"\n");
+
+        Intent fgsi = new Intent(this, DW_FGS.class);
+        startForegroundService(fgsi);
     }
 
     private String readFile(Context context, String uriString) throws IOException {
