@@ -25,6 +25,13 @@ import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 
+//USE THIS SERVICE IN COMBINATION WITH DW INTENT OUTPUT SET TO "Intent delivery: startForegroundService"
+//in the manifest keep just one service declared when filtering intents!
+//output: in A13 no intent is sent, Unable to start service Intent { act=com.ndzl.DW cat=[android.intent.category.DEFAULT] cmp=com.ndzl.targetelevator/.DW_FGS (has extras) } U=0: not found
+//in A11 this works smoothly
+
+
+
 //adb shell am startservice -a com.ndzl.DW -c android.intent.category.DEFAULT  com.ndzl.targetelevator/.DW_FGS
 // --es SSS spriz
 //with the activity in foreground

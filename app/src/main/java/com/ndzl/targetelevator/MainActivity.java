@@ -142,8 +142,12 @@ public class MainActivity extends AppCompatActivity {
 
         tvOut.setText("DEVICE PROTECTED STORAGE\nPrinted at "+DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+"\nFILE:\n"+pathAndFileDPS+"\nCONTENT:\n"+dps_fileContent+"\n\nCREDENTIAL ENCRYPTED STORAGE\nFILE:\n"+pathAndFileCES+"\nCONTENT:\n"+ces_fileContent+"\n");
 
-        Intent fgsi = new Intent(this, DW_FGS.class);
-        startForegroundService(fgsi);
+        //testing calling services
+        //Intent fgsi = new Intent(this, DW_FGS.class);
+        //startForegroundService(fgsi);
+        Intent bgsi = new Intent(this, DW_BGS.class);
+        startService( bgsi );
+
     }
 
     private String readFile(Context context, String uriString) throws IOException {
