@@ -56,7 +56,7 @@ public class DW_FGS extends IntentService {
     protected void onHandleIntent(Intent intent) {
 
         if (intent != null /*&& intent.getAction().equalsIgnoreCase("kKK")*/) {
-            String scanData = intent.getStringExtra("SSS");
+            String scanData = intent.getStringExtra("com.symbol.datawedge.data_string");
 
             //  Note that the notification is unlikely to be seen since the scan is processed so quickly but this step is necessary on O+
             createNotificationChannel();
@@ -70,7 +70,7 @@ public class DW_FGS extends IntentService {
                     .build();
             startForeground(1, notification);
 
-            showToast("Scanned: " + scanData);
+            showToast("DW_FGS barcode: " + scanData);
 
         }
     }

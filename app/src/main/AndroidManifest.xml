@@ -80,4 +80,8 @@
         </service>
     </application>
 
+    <queries>
+        <package android:name="com.symbol.datawedge" />
+    </queries>
+
 </manifest>
