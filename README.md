@@ -20,6 +20,7 @@ Here is a screenshot from the app. Where you spot an exception under the DPS sec
 
 A11 ASKING THE USER ABOUT THE SECURE START-UP SETUP, it was not mandatory yet
 No such option is available on A13. Secure start-up is always enabled with PIN or Password screen lock
+
 ![image](https://user-images.githubusercontent.com/11386676/223754949-4c1727da-fc80-4f2e-a74b-33d1a043cb0b.png)
 
 
