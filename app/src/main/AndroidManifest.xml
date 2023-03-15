@@ -5,6 +5,17 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="com.symbol.emdk.permission.EMDK" />
+
+    <uses-permission android:name="com.zebra.securestoragemanager.securecontentprovider.PERMISSION.WRITE"/>
+    <uses-permission android:name="com.zebra.securestoragemanager.securecontentprovider.PERMISSION.READ"/>
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <queries>
+        <provider android:authorities="com.zebra.securestoragemanager.securecontentprovider"/>
+        <package android:name="com.zebra.securestoragemanager" />
+    </queries>
 
     <application
         android:allowBackup="true"
@@ -16,6 +27,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TargetElevator"
         tools:targetApi="31">
+
+        <uses-library
+            android:name="com.symbol.emdk"
+            android:required="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -50,14 +66,14 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".UserUnlockedIntentReceiver"
+<!--        <receiver android:name=".UserUnlockedIntentReceiver"
             android:directBootAware="true"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.USER_UNLOCKED" />
             </intent-filter>
-        </receiver>
+        </receiver>-->
 
         <provider
             android:name="com.ndzl.targetelevator.MyFileProvider"
@@ -69,16 +85,19 @@
                 android:resource="@xml/provider_paths"/>
         </provider>
 
-<!--        <service
-            android:name=".DW_FGS"
+        <service
+            android:name=".EMDK_FGS"
             android:exported="true"
+            android:directBootAware="true"
+            android:enabled="true"
             >
-            <intent-filter>
+<!--            <intent-filter>
                 <action android:name="com.ndzl.DW" />
                 <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </service>-->
+            </intent-filter>-->
+        </service>
 
+<!--
         <service
             android:name=".DW_BGS"
             android:exported="true"
@@ -88,11 +107,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
+-->
+
 
     </application>
 
     <queries>
         <package android:name="com.symbol.datawedge" />
+        <package android:name="com.symbol.emdk.emdkservice" />
     </queries>
 
 </manifest>

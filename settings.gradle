@@ -10,6 +10,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        jcenter() //FOR EMDK!!
     }
 }
 rootProject.name = "TargetElevator"
