@@ -1,12 +1,17 @@
 package com.ndzl.targetelevator;
 
+import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.core.content.FileProvider;
 
 import com.symbol.emdk.EMDKBase;
 import com.symbol.emdk.EMDKException;
@@ -15,6 +20,7 @@ import com.symbol.emdk.EMDKResults;
 import com.symbol.emdk.ProfileManager;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,10 +63,10 @@ public class IntentsReceiver extends BroadcastReceiver implements EMDKManager.EM
                 logToSampleDPS(context, _tbw);
 
                 //TESTING SSM
-                _tbw = "\nSSM data records after boot: "+ ssm_notpersisted_countRecords(context);
+                _tbw = "\nSSM data records while in direct boot: "+ ssm_notpersisted_countRecords(context);
                 logToSampleDPS(context, _tbw);
 
-                _tbw = "\nSSM file content after boot: "+ ssmQueryFile(context, false);
+                _tbw = "\nSSM file content while in direct boot: "+ ssmQueryFile(context, false);
                 logToSampleDPS(context, _tbw);
             } catch (IOException e) {
                 Toast.makeText(context.getApplicationContext(), "\nIOException-logToSampleDPS", Toast.LENGTH_LONG).show();
@@ -94,7 +100,7 @@ public class IntentsReceiver extends BroadcastReceiver implements EMDKManager.EM
                 throw new RuntimeException(e);
             }
 /*
-            //to test emdk in direct boot mode - cannot start  a service from receiver
+            //to test emdk in direct boot mode -
             Intent bgsi = new Intent(context, DW_BGS.class);
             context.startService( bgsi );
 
@@ -132,6 +138,9 @@ public class IntentsReceiver extends BroadcastReceiver implements EMDKManager.EM
             try {
                 String _tbw = "\n"+ DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+"\n==BOOT COMPLETED== received!\n";
                 logToSampleDPS(context, _tbw);
+                logToSampleCES(context, _tbw);
+
+                _tbw = "\nSSM file content after BOOT_COMPLETED: "+ ssmQueryFile(context, false);
                 logToSampleCES(context, _tbw);
             } catch (IOException e) {
                 try {
@@ -261,6 +270,8 @@ public class IntentsReceiver extends BroadcastReceiver implements EMDKManager.EM
         }
         return res;
     }
+
+
 
     private String readFile(Context context, String uriString) throws IOException {
         InputStream inputStream = context.getContentResolver().openInputStream(Uri.parse(uriString));

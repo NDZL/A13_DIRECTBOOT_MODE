@@ -1,26 +1,24 @@
 package com.ndzl.targetelevator;
 
-import static android.content.Intent.ACTION_INSTALL_PACKAGE;
-import static android.content.Intent.ACTION_SEND;
-import static android.content.Intent.ACTION_VIEW;
+import static java.security.AccessController.getContext;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
-import android.app.admin.DevicePolicyManager;
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.symbol.emdk.EMDKBase;
 import com.symbol.emdk.EMDKException;
@@ -30,6 +28,7 @@ import com.symbol.emdk.ProfileManager;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -169,11 +168,171 @@ public class MainActivity extends AppCompatActivity implements EMDKManager.EMDKL
         catch(Exception e){
             e.printStackTrace();
         }*/
+
+
+
+        ///////////////////////////////////////////
+        //TESTING A FILE PROVIDER AS A MEANS TO SHARE A FILE TO SSM
+
+
+
+        try {
+            //newCacheFile = new File(getCacheDir(), "cachefile4ssm.txt");
+
+            File cachePath = new File(getCacheDir(), ".");
+            cachePath.mkdir();
+            File newCacheFile = new File(cachePath, "ndzl4ssm.txt");
+
+            //File fileRealPath = new File(getCacheDir(), "ndzl4ssm.txt");
+            FileOutputStream fos = new FileOutputStream(newCacheFile, false);
+            String _tbw = "THIS IS CACHEFILE4SSM.TXT from app's cache\n"+DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+" MainActivity/OnCreate/DPS Context "+ UUID.randomUUID()+"\n";
+            fos.write(_tbw.getBytes(StandardCharsets.UTF_8));
+            fos.close();
+
+            Uri cacheFileContentUri = MyFileProvider.getUriForFile(this, "com.ndzl.targetelevator.provider", newCacheFile);
+
+            String cacheContent = readFileIS(newCacheFile);
+            String cph= newCacheFile.getAbsolutePath();
+
+            String fpquery = fpQueryFile(cacheFileContentUri);
+            getApplicationContext().grantUriPermission("com.ndzl.sst_companionapp", cacheFileContentUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            Intent intent = new Intent().setClassName("com.ndzl.sst_companionapp", "com.ndzl.sst_companionapp.MainActivity");
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+/*
+            ClipData clipData = new ClipData(new ClipDescription("Meshes", new String[]{ClipDescription.MIMETYPE_TEXT_URILIST}), new ClipData.Item(cacheFileContentUri));
+            intent.setClipData(clipData);
+            startActivity(intent); //this works fine - target app can access this fileprovider!
+*/
+
+
+            shareLocalFileProviderToSSM(cacheFileContentUri, "com.ndzl.sst_companionapp/AAA.txt", "com.ndzl.sst_companionapp", "");
+
+        } catch (FileNotFoundException e) {
+            e.getMessage();
+        } catch (IOException e) {
+            e.getMessage();
+        }
+
+
+    }
+
+
+    private final String AUTHORITY = "content://com.zebra.securestoragemanager.securecontentprovider/data";
+    private final String AUTHORITY_FILE = "content://com.zebra.securestoragemanager.securecontentprovider/files/";
+    private final String RETRIEVE_AUTHORITY = "content://com.zebra.securestoragemanager.securecontentprovider/file/*";
+    private final String COLUMN_DATA_NAME = "data_name";
+    private final String COLUMN_DATA_VALUE = "data_value";
+    private final String COLUMN_DATA_TYPE = "data_type";
+    private final String COLUMN_DATA_PERSIST_REQUIRED = "data_persist_required";
+    private final String COLUMN_TARGET_APP_PACKAGE = "target_app_package";
+    private void shareLocalFileProviderToSSM(Uri _local_file_provider_Uri, String _target_path, String _target_package, String _target_sig) {
+
+        String TAG = "com.ndzl.targetelevator";
+
+        getApplicationContext().grantUriPermission("com.zebra.securestoragemanager", _local_file_provider_Uri, Intent.FLAG_GRANT_READ_URI_PERMISSION); // Needed to grant permission for SSM to read the uri
+
+        StringBuilder _sb = new StringBuilder();
+        {
+            Uri cpUriQuery = Uri.parse(AUTHORITY_FILE + getPackageName());
+            Log.i(TAG, "authority  " + cpUriQuery.toString());
+
+            try {
+                ContentValues values = new ContentValues();
+                String _package_sig = "{\"pkg\":\""+ _target_package +"\",\"sig\":\"" + _target_sig + "\"}";
+                String allPackagesSigs = "{\"pkgs_sigs\":["+ _package_sig  + "]}" ;
+
+                values.put(COLUMN_TARGET_APP_PACKAGE, allPackagesSigs);
+                values.put(COLUMN_DATA_NAME, String.valueOf(_local_file_provider_Uri)); //URI instead of file path
+                //values.put(COLUMN_DATA_TYPE, "3");
+                values.put(COLUMN_DATA_VALUE, _target_path);
+                values.put(COLUMN_DATA_PERSIST_REQUIRED, "false");
+
+                Uri createdRow = getContentResolver().insert(cpUriQuery, values);
+                Log.i(TAG, "SSM Insert httpsUri: " + createdRow.toString());
+                //Toast.makeText(this, "File insert success", Toast.LENGTH_SHORT).show();
+                _sb.append("Insert httpsUri Result rows: "+createdRow+"\n" );
+            } catch (Exception e) {
+                Log.e(TAG, "SSM Insert httpsUri - error: " + e.getMessage() + "\n\n");
+                _sb.append("SSM Insert httpsUri - error: " + e.getMessage() + "\n\n");
+            }
+
+        }
+    }
+
+    String fpQueryFile(Uri _uri_to_be_queried) {
+        String TAG="QUERY_LOCAL_FILEPROVIDER";
+        Uri uriFile = _uri_to_be_queried;
+        //String selection = "target_app_package='com.ndzl.targetelevator'"; //GETS *ALL FILES* FOR THE PACKAGE NO PERSISTANCE FILTER
+
+
+        String res = "N/A";
+        Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(uriFile, null, null, null, null);
+        } catch (Exception e) {
+            Log.d(TAG, "Error: " + e.getMessage());
+        }
+        try {
+            if (cursor != null && cursor.moveToFirst()) {
+                StringBuilder strBuild = new StringBuilder();
+                String uriString;
+                strBuild.append("FILES FOUND: "+cursor.getCount()+"\n");
+                while (!cursor.isAfterLast()) {
+                    /*
+                    //for debug purpose: listing cursor's columns
+                    for (int i = 0; i<cursor.getColumnCount(); i++) {
+                        Log.d(TAG, "column " + i + "=" + cursor.getColumnName(i));
+                    }
+
+                    //column 0=_display_name   column 1=_size
+
+                    //RESULT: THE COLUMN NAMES USED BELOW
+                    */
+                    String fileName = cursor.getString(cursor.getColumnIndex("_display_name"));
+                    String fileSize = cursor.getString(cursor.getColumnIndex("_size"));
+
+                    strBuild.append(fileName+" ");
+                    strBuild.append(fileSize+"\n");
+                    //strBuild.append("\n ----------------------").append("\n");
+
+                    cursor.moveToNext();
+                }
+                //Log.d(TAG, "Query File: " + strBuild);
+                //Log.d("Client - Query", "Set test to view =  " + System.currentTimeMillis());
+                res =strBuild.toString();
+            } else {
+                res="No files to query for local package "+getPackageName();
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Files query data error: " + e.getMessage());
+            res="EXCP-"+e.getMessage();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return res;
     }
 
 
     private String readFile(Context context, String uriString) throws IOException {
         InputStream inputStream =   context.openFileInput(uriString);
+        InputStreamReader isr = new InputStreamReader(inputStream);
+
+        BufferedReader bufferedReader = new BufferedReader(isr);
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            sb.append(line+"\n");
+        }
+        Log.d("com.ndzl.targetelevator", "full content = " + sb);
+        return sb.toString();
+    }
+
+    private String readFileIS(File inFile) throws IOException {
+        InputStream inputStream =   new FileInputStream(inFile);
+
         InputStreamReader isr = new InputStreamReader(inputStream);
 
         BufferedReader bufferedReader = new BufferedReader(isr);

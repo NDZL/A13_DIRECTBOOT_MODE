@@ -12,10 +12,9 @@
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
-    <queries>
-        <provider android:authorities="com.zebra.securestoragemanager.securecontentprovider"/>
-        <package android:name="com.zebra.securestoragemanager" />
-    </queries>
+    <permission
+        android:name="com.ndzl.targetelevator.provider.PERMISSION.READ"
+        android:protectionLevel="normal" />
 
     <application
         android:allowBackup="true"
@@ -77,9 +76,10 @@
 
         <provider
             android:name="com.ndzl.targetelevator.MyFileProvider"
-            android:authorities="${applicationId}.provider"
+            android:authorities="com.ndzl.targetelevator.provider"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true"
+            android:readPermission="com.ndzl.targetelevator.provider.PERMISSION.READ">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"/>
@@ -113,6 +113,12 @@
     </application>
 
     <queries>
+        <provider android:authorities="com.zebra.securestoragemanager.securecontentprovider"/>
+        <package android:name="com.zebra.securestoragemanager" />
+
+        <!-- <provider android:authorities="com.ndzl.targetelevator.provider"/>
+         <package android:name="com.ndzl.targetelevator" />-->
+
         <package android:name="com.symbol.datawedge" />
         <package android:name="com.symbol.emdk.emdkservice" />
     </queries>
