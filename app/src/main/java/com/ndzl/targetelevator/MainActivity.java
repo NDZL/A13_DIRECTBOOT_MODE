@@ -1,15 +1,10 @@
 package com.ndzl.targetelevator;
 
-import static java.security.AccessController.getContext;
-
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
-import android.content.ClipData;
-import android.content.ClipDescription;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -49,7 +44,7 @@ https://developer.android.com/training/articles/direct-boot
 * */
 
 
-public class MainActivity extends AppCompatActivity implements EMDKManager.EMDKListener, EMDKManager.StatusListener, ProfileManager.DataListener {
+public class MainActivity extends AppCompatActivity {
 
     static private void copy(InputStream in, File dst) throws IOException {
         FileOutputStream out=new FileOutputStream(dst);
@@ -86,8 +81,6 @@ public class MainActivity extends AppCompatActivity implements EMDKManager.EMDKL
         //userUnlockedFilter.addAction("android.intent.action.USER_UNLOCKED");
         //registerReceiver(new UserUnlockedIntentReceiver(), userUnlockedFilter);
         //Log.d("com.ndzl.targetelevator", "==REGISTERING RECEIVER! 000");
-
-        //EMDKResults results = EMDKManager.getEMDKManager(getApplicationContext(), MainActivity.this);
 
         // creating and reading a file in the Device Encrypted Storage
         String fileNameDPS = "sampleDPS.txt";
@@ -153,60 +146,43 @@ public class MainActivity extends AppCompatActivity implements EMDKManager.EMDKL
 
         tvOut.setText("DEVICE PROTECTED STORAGE\nPrinted at "+DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+"\nFILE:\n"+pathAndFileDPS+"\nCONTENT:\n"+dps_fileContent+"\n\nCREDENTIAL ENCRYPTED STORAGE\nFILE:\n"+pathAndFileCES+"\nCONTENT:\n"+ces_fileContent+"\n");
 
-        //testing calling services
-//        Intent fgsi = new Intent(this, EMDK_FGS.class);
-//        startForegroundService(fgsi);
-
-        //to test emdk instanced in a service - this works well
-        //Intent bgsi = new Intent(this, DW_BGS.class);
-        //startService( bgsi );
-
-/*//EMDK TEST VIA WORKMANAGER WORKMANAGER NOT WORKING IN DIRECT BOOT!
-        try{
-            schedulePeriodicJob();
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }*/
-
-
 
         ///////////////////////////////////////////
-        //TESTING A FILE PROVIDER AS A MEANS TO SHARE A FILE TO SSM
-
-
+        //TESTING A FILE PROVIDER AS A WAYTO SHARE A FILE TO SSM
 
         try {
-            //newCacheFile = new File(getCacheDir(), "cachefile4ssm.txt");
-
             File cachePath = new File(getCacheDir(), ".");
             cachePath.mkdir();
             File newCacheFile = new File(cachePath, "ndzl4ssm.txt");
 
-            //File fileRealPath = new File(getCacheDir(), "ndzl4ssm.txt");
             FileOutputStream fos = new FileOutputStream(newCacheFile, false);
-            String _tbw = "THIS IS CACHEFILE4SSM.TXT from app's cache\n"+DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+" MainActivity/OnCreate/DPS Context "+ UUID.randomUUID()+"\n";
+            String _tbw = "This is the file content from the originating app's cache\n"+DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+" MainActivity/OnCreate/DPS Context "+ UUID.randomUUID()+"\n";
             fos.write(_tbw.getBytes(StandardCharsets.UTF_8));
             fos.close();
 
-            Uri cacheFileContentUri = MyFileProvider.getUriForFile(this, "com.ndzl.targetelevator.provider", newCacheFile);
+            Uri cacheFileContentUri = OriginatingAppFileProvider.getUriForFile(this, "com.ndzl.targetelevator.provider", newCacheFile);
 
-            String cacheContent = readFileIS(newCacheFile);
-            String cph= newCacheFile.getAbsolutePath();
+            //READING THE FILE JUST CREATED - FOR DEBUGGING PURPOSE
+            String cacheContent = readFileIS(newCacheFile);     //reading from File
+            String cph= newCacheFile.getAbsolutePath();         //getting path
+            String fpquery = fpQueryFile(cacheFileContentUri); //QUERYING FILE METADATA (filename and size) inside the local fileprovider
 
-            String fpquery = fpQueryFile(cacheFileContentUri);
+
             getApplicationContext().grantUriPermission("com.ndzl.sst_companionapp", cacheFileContentUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            shareLocalFileProviderToSSM(cacheFileContentUri, "com.ndzl.sst_companionapp/AAA.txt", "com.ndzl.sst_companionapp", "");
 
+
+            /*
+            //FOLLOWING CODE FOR SHARING A FILE FROM THE LOCAL FILEPROVIDER TO A SPECIFIC APP AND LET IT CONSUME IT
             Intent intent = new Intent().setClassName("com.ndzl.sst_companionapp", "com.ndzl.sst_companionapp.MainActivity");
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-/*
+
             ClipData clipData = new ClipData(new ClipDescription("Meshes", new String[]{ClipDescription.MIMETYPE_TEXT_URILIST}), new ClipData.Item(cacheFileContentUri));
             intent.setClipData(clipData);
             startActivity(intent); //this works fine - target app can access this fileprovider!
-*/
+            */
 
 
-            shareLocalFileProviderToSSM(cacheFileContentUri, "com.ndzl.sst_companionapp/AAA.txt", "com.ndzl.sst_companionapp", "");
 
         } catch (FileNotFoundException e) {
             e.getMessage();
@@ -345,100 +321,4 @@ public class MainActivity extends AppCompatActivity implements EMDKManager.EMDKL
         return sb.toString();
     }
 
-
-    //https://developer.android.com/reference/androidx/work/PeriodicWorkRequest?hl=en
-    public void schedulePeriodicJob() {
-        //MIN PERIOD 15'  Interval duration lesser than minimum allowed value; Changed to 900000
-        PeriodicWorkRequest pingWorkRequest =
-                new PeriodicWorkRequest.Builder(EMDKWorker.class, 15, TimeUnit.MINUTES, 5, TimeUnit.MINUTES)
-                        .addTag("PERIODIC_EMDK_TASK")
-                        //.setConstraints(anyNetworkConstraint)
-                        .build();
-
-        //OneTimeWorkRequest oneTimeWorkRequest = new OneTimeWorkRequest.Builder(EMDKWorker.class)
-        //        .build();
-
-        WorkManager
-                .getInstance(this)
-                .enqueueUniquePeriodicWork("uniqueWorkEMDK",
-                        ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
-                        pingWorkRequest);
-                //.enqueue( oneTimeWorkRequest );
-
-
-    }
-
-    private ProfileManager profileManager = null;
-    private EMDKManager emdkManager = null;
-    String profileToBeApplied = "SOMESETTING";
-    @Override
-    public void onOpened(EMDKManager emdkManager) {
-        try {
-            emdkManager.getInstanceAsync(EMDKManager.FEATURE_TYPE.PROFILE, MainActivity.this);
-        } catch (EMDKException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onClosed() {
-
-    }
-
-    @Override
-    public void onStatus(EMDKManager.StatusData statusData, EMDKBase emdkBase) {
-        if(statusData.getResult() == EMDKResults.STATUS_CODE.SUCCESS) {
-            if(statusData.getFeatureType() == EMDKManager.FEATURE_TYPE.PROFILE)
-            {
-                profileManager = (ProfileManager)emdkBase;
-                profileManager.addDataListener(this);
-                //ApplyEMDKprofile();
-                //finish();
-                //System.exit(0);
-            }
-        }
-    }
-
-    @Override
-    public void onData(ProfileManager.ResultData resultData) {
-
-    }
 }
-
-//2022-12-22 15:41:55.043  1803-1843  ActivityTaskManager     pid-1803                             W  Showing SDK deprecation warning for package com.ndzl.earlytarget
-//        // DO NOT MODIFY. Used by CTS to verify the dialog is displayed.
-//        window.getAttributes().setTitle("DeprecatedTargetSdkVersionDialog");
-
-//        try {
-//
-//                InputStream in = getResources().openRawResource(R.raw.earlytarget_22);
-//                File out=new File(getCacheDir(), "earlytarget_22.apk");
-//                // File out=new File(getCacheDir(), "earlytarget_33.apk");
-//                //File out=new File(getCacheDir(), "zebra_xamarin_v6.pdf");
-//                copy(in, out);
-//                long outlen = out.length();
-//
-//
-//                String authority = getApplicationContext().getPackageName() + ".provider";
-//
-//                Uri apkURI = FileProvider.getUriForFile(this, authority, out);
-//                /*URI examples, on TC21 A11 -
-//                 * PDF: content://com.ndzl.targetelevator.provider/cache_files/zebra_xamarin_v6.pdf  <==WORKING!
-//                 * APK: it works fine, app installer is invoked */
-//
-//                Intent intent = new Intent();
-//                intent.setDataAndType(apkURI, "application/vnd.android.package-archive");
-//                //pdf//intent.setDataAndType(apkURI, "application/pdf");
-//
-//                intent.setAction(ACTION_VIEW);
-//                //-old-//intent.setFlags(IntePERMISSION_REQUEST_CODEnt.FLAG_ACTIVITY_NEW_TASK);
-//
-//                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//
-//                startActivity(intent);
-//
-//                } catch (IOException e) {
-//
-//                int x=0;
-//                }

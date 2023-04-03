@@ -1,26 +1,14 @@
 package com.ndzl.targetelevator;
 
-import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.core.content.FileProvider;
-
-import com.symbol.emdk.EMDKBase;
-import com.symbol.emdk.EMDKException;
-import com.symbol.emdk.EMDKManager;
-import com.symbol.emdk.EMDKResults;
-import com.symbol.emdk.ProfileManager;
-
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,10 +18,8 @@ import java.text.DateFormat;
 import java.util.Date;
 
 //adb shell am broadcast -a com.ndzl.DW -c android.intent.category.DEFAULT --es com.symbol.datawedge.data_string spriz  com.ndzl.targetelevator/.IntentsReceiver
-public class IntentsReceiver extends BroadcastReceiver implements EMDKManager.EMDKListener, EMDKManager.StatusListener, ProfileManager.DataListener {
-    private ProfileManager profileManager = null;
-    private EMDKManager emdkManager = null;
-    String profileToBeApplied = "SOMESETTING";
+public class IntentsReceiver extends BroadcastReceiver{
+
     void logToSampleDPS(Context context, String _tbw) throws IOException {
         Context ctxDPS = context.createDeviceProtectedStorageContext();
         String _wout = _tbw ;//+" "+ ctxDPS.getFilesDir().getAbsolutePath();
@@ -51,8 +37,6 @@ public class IntentsReceiver extends BroadcastReceiver implements EMDKManager.EM
 
     @Override
     public void onReceive(final Context context, Intent intent) {
-
-        //Log.d("com.ndzl.targetelevator", "## event received ");
 
         //https://developer.android.com/guide/components/broadcast-exceptions
         if (intent != null && intent.getAction().equals("android.intent.action.LOCKED_BOOT_COMPLETED")) {
@@ -87,33 +71,20 @@ public class IntentsReceiver extends BroadcastReceiver implements EMDKManager.EM
                 //throw new RuntimeException(e);
             }
 
-            //TRY WORKING EMDK - not working here
-             //   EMDKResults results = EMDKManager.getEMDKManager(context, IntentsReceiver.this);
-
             //starting a FGS after LOCKED_BOOT_COMPLETED receive is a valid exception!
             //After the device reboots and receives the ACTION_BOOT_COMPLETED, ACTION_LOCKED_BOOT_COMPLETED, or ACTION_MY_PACKAGE_REPLACED intent action in a broadcast receiver.
             // Constant Value: "android.intent.action.LOCKED_BOOT_COMPLETED"
-            Intent fgsi = new Intent(context.getApplicationContext(), EMDK_FGS.class);
+            Intent fgsi = new Intent(context.getApplicationContext(), BA_FGS.class);
             try {
                 context.getApplicationContext().startForegroundService(fgsi);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
 /*
-            //to test emdk in direct boot mode -
             Intent bgsi = new Intent(context, DW_BGS.class);
             context.startService( bgsi );
 
-            Log.d("com.ndzl.targetelevator", "==launching mainactivity ! 789");
-            //Context mainctxDPS = context.createDeviceProtectedStorageContext();
-            Intent runMain = new Intent(context, MainActivity.class);
-            runMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            context.startActivity(runMain); //no, you cannot launch an activity while in direct boot mode
-            //Toast.makeText(context.getApplicationContext(), "LOCKED_BOOT_COMPLETED\n"+ ctxDPS.getFilesDir().getAbsolutePath(), Toast.LENGTH_LONG).show();
 */
-
-
-
         }
 
         //https://developer.android.com/training/articles/direct-boot#notification
@@ -170,13 +141,6 @@ public class IntentsReceiver extends BroadcastReceiver implements EMDKManager.EM
             } catch (IOException e) {
 
             }
-            //FOR TESTING ONLY, REMOVE THEN
-            //EMDKResults results = EMDKManager.getEMDKManager(context.getApplicationContext(), IntentsReceiver.this);
-            /*
-            Intent runMain = new Intent(context, MainActivity.class);
-            runMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            context.startActivity(runMain);
-            */
 
         }
 
@@ -185,9 +149,9 @@ public class IntentsReceiver extends BroadcastReceiver implements EMDKManager.EM
     }
 
     //TESTING ZEBRA SSM
-    private final String AUTHORITY = "content://com.zebra.securestoragemanager.securecontentprovider/data";
-    private final String AUTHORITY_FILE = "content://com.zebra.securestoragemanager.securecontentprovider/files/";
-    private final String RETRIEVE_AUTHORITY = "content://com.zebra.securestoragemanager.securecontentprovider/file/*";
+    private final String SSM_DATA_AUTHORITY = "content://com.zebra.securestoragemanager.securecontentprovider/data";
+    private final String SSM_FILE_AUTHORITY_FILE = "content://com.zebra.securestoragemanager.securecontentprovider/files/";
+    private final String SSM_FILE_RETRIEVE_AUTHORITY = "content://com.zebra.securestoragemanager.securecontentprovider/file/*";
     private final String COLUMN_DATA_NAME = "data_name";
     private final String COLUMN_DATA_VALUE = "data_value";
     private final String COLUMN_DATA_TYPE = "data_type";
@@ -195,7 +159,7 @@ public class IntentsReceiver extends BroadcastReceiver implements EMDKManager.EM
     private final String COLUMN_TARGET_APP_PACKAGE = "target_app_package";
     private static final String TAG = "com.ndzl.targetelevator";
     String ssm_notpersisted_countRecords(Context context) {
-        Uri cpUriQuery = Uri.parse(AUTHORITY + "/[" + context.getPackageName() + "]");
+        Uri cpUriQuery = Uri.parse(SSM_DATA_AUTHORITY + "/[" + context.getPackageName() + "]");
         String selection = COLUMN_TARGET_APP_PACKAGE + " = '" + context.getPackageName() + "'" + " AND " + COLUMN_DATA_PERSIST_REQUIRED + " = 'false'" + " AND " + COLUMN_DATA_TYPE + " = '" + "1" + "'";
 
         int _count=0;
@@ -217,9 +181,9 @@ public class IntentsReceiver extends BroadcastReceiver implements EMDKManager.EM
 
     private final String signature = "";
     String ssmQueryFile(Context context, boolean isReadFromWorkProfile) {
-        Uri uriFile = Uri.parse(RETRIEVE_AUTHORITY);  //original - usually works
+        Uri uriFile = Uri.parse(SSM_FILE_RETRIEVE_AUTHORITY);  //original - usually works
         //Uri uriFile = Uri.parse(AUTHORITY_FILE);//test for direct boot
-        String selection = "target_app_package='com.ndzl.targetelevator'"; //GETS *ALL FILES* FOR THE PACKAGE NO PERSISTANCE FILTER
+        String selection = "target_app_package='com.ndzl.targetelevator'"; //GETS *ALL FILES* FOR THE PACKAGE NO PERSISTENCE FILTER
         Log.i(TAG, "File selection " + selection);
         Log.i(TAG, "File cpUriQuery " + uriFile.toString());
 
@@ -286,68 +250,4 @@ public class IntentsReceiver extends BroadcastReceiver implements EMDKManager.EM
         return sb.toString();
     }
 
-
-
-    //TESTING ZEBRA EMDK
-    @Override
-    public void onOpened(EMDKManager emdkManager) {
-        this.emdkManager = emdkManager;
-
-        Log.d("com.ndzl.targetelevator","onOpened before getInstanceAsync");
-
-        try {
-            emdkManager.getInstanceAsync(EMDKManager.FEATURE_TYPE.PROFILE, IntentsReceiver.this);
-        } catch (EMDKException e) {
-            e.printStackTrace();
-            Log.d("com.ndzl.targetelevator","onOpened exception 1");
-
-        }
-        catch(Exception ex){
-            Log.d("com.ndzl.targetelevator","onOpened exception 1");
-
-        }
-        Log.d("com.ndzl.targetelevator","onOpened after getInstanceAsync");
-
-    }
-
-    @Override
-    public void onClosed() {
-
-    }
-
-    @Override
-    public void onStatus(EMDKManager.StatusData statusData, EMDKBase emdkBase) {
-        if(statusData.getResult() == EMDKResults.STATUS_CODE.SUCCESS) {
-            if(statusData.getFeatureType() == EMDKManager.FEATURE_TYPE.PROFILE)
-            {
-                profileManager = (ProfileManager)emdkBase;
-                profileManager.addDataListener(this);
-                ApplyEMDKprofile();
-                //finish();
-                //System.exit(0);
-            }
-        }
-    }
-
-    private void ApplyEMDKprofile(){
-        if (profileManager != null) {
-            String[] modifyData = new String[1];
-
-            final EMDKResults results = profileManager.processProfileAsync(profileToBeApplied,
-                    ProfileManager.PROFILE_FLAG.SET, modifyData);
-
-            String sty = results.statusCode.toString();
-        }
-    }
-
-    @Override
-    public void onData(ProfileManager.ResultData resultData) {
-        EMDKResults result = resultData.getResult();
-        if(result.statusCode == EMDKResults.STATUS_CODE.CHECK_XML) {
-            String responseXML = result.getExtendedStatusMessage();
-            //Toast.makeText(MainActivity.this, "RESPONSE="+responseXML, Toast.LENGTH_LONG).show();
-        } else if(result.statusCode != EMDKResults.STATUS_CODE.SUCCESS) {
-            //Toast.makeText(MainActivity.this, "ERROR IN PROFILE APPLICATION", Toast.LENGTH_LONG).show();
-        }
-    }
 }

@@ -20,12 +20,6 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.symbol.emdk.EMDKBase;
-import com.symbol.emdk.EMDKException;
-import com.symbol.emdk.EMDKManager;
-import com.symbol.emdk.EMDKResults;
-import com.symbol.emdk.ProfileManager;
-
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -33,29 +27,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
-//USE THIS SERVICE IN COMBINATION WITH DW INTENT OUTPUT SET TO "Intent delivery: startForegroundService"
-//in the manifest keep just one service declared when filtering intents!
-//output: in A13 no intent is sent, Unable to start service Intent { act=com.ndzl.DW cat=[android.intent.category.DEFAULT] cmp=com.ndzl.targetelevator/.EMDK_FGS (has extras) } U=0: not found
-//in A11 this works smoothly
-
-
-
-//adb shell am startservice -a com.ndzl.DW -c android.intent.category.DEFAULT  com.ndzl.targetelevator/.EMDK_FGS
-// --es SSS spriz
-//with the activity in foreground
-
-//Applications that target Android 12 or higher can’t start foreground services while running in the background.
-//If an application attempts to start a foreground service while running in the background, the 🛑 ForegroundServiceStartNotAllowedException 🛑exception occurs.
-
-// so DW delivery by calling startforegroundservice is no more an option??
-
-//Exemptions from background start restrictions:
-// After the device reboots and receives the ACTION_BOOT_COMPLETED, ACTION_LOCKED_BOOT_COMPLETED, or ACTION_MY_PACKAGE_REPLACED intent action in a broadcast receiver.
-//Constant Value: "android.intent.action.LOCKED_BOOT_COMPLETED"
-
-public class EMDK_FGS extends Service implements EMDKManager.EMDKListener, EMDKManager.StatusListener, ProfileManager.DataListener  {
+public class BA_FGS extends Service { //BOOT-AWARE FGS
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
-    String TAG = "com.ndzl.targetelevator/EMDK_FGS";
+    String TAG = "com.ndzl.targetelevator/BA_FGS";
 
     public void showToast(String message) {
         final String msg = message;
@@ -71,7 +45,7 @@ public class EMDK_FGS extends Service implements EMDKManager.EMDKListener, EMDKM
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,
-                    "DataWedge Background Scanning",
+                    "Notificaton Name",
                     NotificationManager.IMPORTANCE_DEFAULT
             );
             NotificationManager manager = getSystemService(NotificationManager.class);
@@ -91,10 +65,7 @@ public class EMDK_FGS extends Service implements EMDKManager.EMDKListener, EMDKM
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-        try {logToSampleDPS("\nEMDK_FGS created!");} catch (IOException e) {}
-
-        //EMDK TEST
-        EMDKResults results = EMDKManager.getEMDKManager(getApplicationContext(), EMDK_FGS.this); //DEPENDACY_COMPONENT_FAILURE
+        try {logToSampleDPS("\nBA_FGS created!");} catch (IOException e) {}
 
         //SSM
         Context ssmContext = getApplicationContext().createDeviceProtectedStorageContext();
@@ -126,74 +97,6 @@ public class EMDK_FGS extends Service implements EMDKManager.EMDKListener, EMDKM
     public IBinder onBind(Intent intent) {
         return null;
     }
-
-    //TESTING ZEBRA EMDK
-    private ProfileManager profileManager = null;
-    private EMDKManager emdkManager = null;
-    String profileToBeApplied = "SOMESETTING";
-    @Override
-    public void onOpened(EMDKManager emdkManager) {
-        emdkManager = emdkManager;
-
-        Log.d(TAG,"onOpened before getInstanceAsync");
-
-        try {
-            emdkManager.getInstanceAsync(EMDKManager.FEATURE_TYPE.PROFILE, EMDK_FGS.this);
-        } catch (EMDKException e) {
-            e.printStackTrace();
-            Log.d(TAG,"onOpened exception 1");
-
-        }
-        catch(Exception ex){
-            Log.d(TAG,"onOpened exception 2");
-
-        }
-        Log.d(TAG,"onOpened after getInstanceAsync");
-
-    }
-
-    @Override
-    public void onClosed() {
-
-    }
-
-    @Override
-    public void onStatus(EMDKManager.StatusData statusData, EMDKBase emdkBase) {
-        if(statusData.getResult() == EMDKResults.STATUS_CODE.SUCCESS) {
-            if(statusData.getFeatureType() == EMDKManager.FEATURE_TYPE.PROFILE)
-            {
-                profileManager = (ProfileManager)emdkBase;
-                profileManager.addDataListener(this);
-                ApplyEMDKprofile();
-                //finish();
-                //System.exit(0);
-            }
-        }
-    }
-
-    private void ApplyEMDKprofile(){
-        if (profileManager != null) {
-            String[] modifyData = new String[1];
-
-            final EMDKResults results = profileManager.processProfileAsync(profileToBeApplied,
-                    ProfileManager.PROFILE_FLAG.SET, modifyData);
-
-            String sty = results.statusCode.toString();
-        }
-    }
-
-    @Override
-    public void onData(ProfileManager.ResultData resultData) {
-        EMDKResults result = resultData.getResult();
-        if(result.statusCode == EMDKResults.STATUS_CODE.CHECK_XML) {
-            String responseXML = result.getExtendedStatusMessage();
-            //Toast.makeText(MainActivity.this, "RESPONSE="+responseXML, Toast.LENGTH_LONG).show();
-        } else if(result.statusCode != EMDKResults.STATUS_CODE.SUCCESS) {
-            //Toast.makeText(MainActivity.this, "ERROR IN PROFILE APPLICATION", Toast.LENGTH_LONG).show();
-        }
-    }
-
-
 
 
     private final String AUTHORITY = "content://com.zebra.securestoragemanager.securecontentprovider/data";

@@ -75,7 +75,7 @@
         </receiver>-->
 
         <provider
-            android:name="com.ndzl.targetelevator.MyFileProvider"
+            android:name="com.ndzl.targetelevator.OriginatingAppFileProvider"
             android:authorities="com.ndzl.targetelevator.provider"
             android:exported="false"
             android:grantUriPermissions="true"
@@ -86,7 +86,7 @@
         </provider>
 
         <service
-            android:name=".EMDK_FGS"
+            android:name=".BA_FGS"
             android:exported="true"
             android:directBootAware="true"
             android:enabled="true"
@@ -97,17 +97,7 @@
             </intent-filter>-->
         </service>
 
-<!--
-        <service
-            android:name=".DW_BGS"
-            android:exported="true"
-            >
-            <intent-filter>
-                <action android:name="com.ndzl.DW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </service>
--->
+
 
 
     </application>
@@ -115,9 +105,6 @@
     <queries>
         <provider android:authorities="com.zebra.securestoragemanager.securecontentprovider"/>
         <package android:name="com.zebra.securestoragemanager" />
-
-        <!-- <provider android:authorities="com.ndzl.targetelevator.provider"/>
-         <package android:name="com.ndzl.targetelevator" />-->
 
         <package android:name="com.symbol.datawedge" />
         <package android:name="com.symbol.emdk.emdkservice" />
