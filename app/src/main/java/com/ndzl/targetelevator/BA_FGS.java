@@ -5,8 +5,10 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -71,6 +73,12 @@ public class BA_FGS extends Service { //BOOT-AWARE FGS
         Context ssmContext = getApplicationContext().createDeviceProtectedStorageContext();
         String _tbw = "\nSSM file content in FGS run after LOCKED_BOOT_COMPLETED: "+ ssmQueryFile(ssmContext, false);
         try {logToSampleDPS(_tbw);} catch (IOException e) {}
+
+        //DW INTENT RECEIVER? TESTING! -== ENSURE THESE ACTION/CATEGORY ARE DECLARED IN THE MANIFEST.XML ==-
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.ndzl.DW");
+        filter.addCategory("android.intent.category.DEFAULT");
+        registerReceiver(new IntentsReceiver(), filter);
     }
 
     @Override

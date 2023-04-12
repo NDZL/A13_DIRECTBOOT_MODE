@@ -125,7 +125,8 @@ public class IntentsReceiver extends BroadcastReceiver{
         }
 
         if (intent != null && intent.getAction().equals("com.ndzl.DW")){
-            String _tbw = "\n"+ DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+" - com.ndzl.DW received via BROADCAST intent";
+            String barcode_value = intent.getStringExtra("com.symbol.datawedge.data_string");
+            String _tbw = "\n"+ DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+" - com.ndzl.DW received via BROADCAST intent <"+barcode_value+">";
             try {
                 logToSampleCES(context, _tbw);
                 //TESTING SSM

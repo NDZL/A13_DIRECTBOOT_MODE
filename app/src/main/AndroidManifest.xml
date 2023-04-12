@@ -54,10 +54,10 @@
             android:directBootAware="true"
             android:enabled="true"
             android:exported="true">
-            <intent-filter>
+<!--            <intent-filter>
                 <action android:name="com.ndzl.DW" />
                 <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
+            </intent-filter>-->
 
             <intent-filter>
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
@@ -91,10 +91,10 @@
             android:directBootAware="true"
             android:enabled="true"
             >
-<!--            <intent-filter>
+            <intent-filter>
                 <action android:name="com.ndzl.DW" />
                 <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>-->
+            </intent-filter>
         </service>
 
 
