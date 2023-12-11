@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -127,6 +129,7 @@ public class IntentsReceiver extends BroadcastReceiver{
         if (intent != null && intent.getAction().equals("com.ndzl.DW")){
             String barcode_value = intent.getStringExtra("com.symbol.datawedge.data_string");
             String _tbw = "\n"+ DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+" - com.ndzl.DW received via BROADCAST intent <"+barcode_value+">";
+            showContexedToast(context, _tbw);
             try {
                 logToSampleCES(context, _tbw);
                 //TESTING SSM
@@ -145,8 +148,21 @@ public class IntentsReceiver extends BroadcastReceiver{
 
         }
 
+        //TO MANAGE USER ACTION ON FGS NOTIFICATION
+        if (intent != null && intent.getAction().equals( BA_FGS.ACTION_TOGGLE_AUDIOCAPTURE )){
+            BA_FGS.mm.stopRecording();
+        }
 
+    }
 
+    public void showContexedToast(Context context, String message) {
+        final String msg = message;
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText( context, msg, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     //TESTING ZEBRA SSM

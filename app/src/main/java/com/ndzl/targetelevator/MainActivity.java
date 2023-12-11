@@ -183,6 +183,14 @@ public class MainActivity extends AppCompatActivity {
             */
 
 
+            //FOR AUDIO CAPTURE TEST
+            Intent fgsi = new Intent(getApplicationContext(), BA_FGS.class);
+            try {
+                getApplicationContext().startForegroundService(fgsi);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
 
         } catch (FileNotFoundException e) {
             e.getMessage();
@@ -190,6 +198,11 @@ public class MainActivity extends AppCompatActivity {
             e.getMessage();
         }
 
+
+        String[] perms = {"android.permission.BLUETOOTH_SCAN"};
+
+        int permsRequestCode = 200;
+        //requestPermissions(perms, 3003);
 
     }
 

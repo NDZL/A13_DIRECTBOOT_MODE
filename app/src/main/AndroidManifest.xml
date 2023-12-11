@@ -12,6 +12,10 @@
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"   android:usesPermissionFlags="neverForLocation" />
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <permission
         android:name="com.ndzl.targetelevator.provider.PERMISSION.READ"
         android:protectionLevel="normal" />
@@ -90,6 +94,7 @@
             android:exported="true"
             android:directBootAware="true"
             android:enabled="true"
+            android:foregroundServiceType="microphone"
             >
             <intent-filter>
                 <action android:name="com.ndzl.DW" />

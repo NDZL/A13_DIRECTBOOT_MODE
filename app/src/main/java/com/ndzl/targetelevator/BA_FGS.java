@@ -1,5 +1,7 @@
 package com.ndzl.targetelevator;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -31,6 +33,8 @@ import java.nio.charset.StandardCharsets;
 
 public class BA_FGS extends Service { //BOOT-AWARE FGS
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
+
+    public static final String ACTION_TOGGLE_AUDIOCAPTURE = "TOGGLE_AUDIO_CAPTURE";
     String TAG = "com.ndzl.targetelevator/BA_FGS";
 
     public void showToast(String message) {
@@ -63,6 +67,8 @@ public class BA_FGS extends Service { //BOOT-AWARE FGS
         fos.write(_wout.getBytes(StandardCharsets.UTF_8));
         fos.close();
     }
+
+    public static MicManager mm;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -77,25 +83,37 @@ public class BA_FGS extends Service { //BOOT-AWARE FGS
         //DW INTENT RECEIVER? TESTING! -== ENSURE THESE ACTION/CATEGORY ARE DECLARED IN THE MANIFEST.XML ==-
         IntentFilter filter = new IntentFilter();
         filter.addAction("com.ndzl.DW");
+        filter.addAction("TOGGLE_AUDIO_CAPTURE");
         filter.addCategory("android.intent.category.DEFAULT");
         registerReceiver(new IntentsReceiver(), filter);
+
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         Log.d(TAG, "onStartCommand");
+
+        Intent toggleWifenceIntent = new Intent();
+        toggleWifenceIntent.setAction( ACTION_TOGGLE_AUDIOCAPTURE );
+        PendingIntent toggleMICPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 4004, toggleWifenceIntent, PendingIntent.FLAG_UPDATE_CURRENT|FLAG_IMMUTABLE);
+
+
         createNotificationChannel();
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_MUTABLE );
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("EMDK in Direct Boot")
+                .setContentTitle("Direct Boot Exerciser")
                 .setContentText("testing FGS")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentIntent(pendingIntent)
+                .addAction(R.drawable.ic_launcher_background, "AUDIO REC STOP", toggleMICPendingIntent)
                 .build();
         startForeground(1, notification);
 
+
+        mm = new MicManager();
+        mm.startRecording();
 
         return super.onStartCommand(intent, flags, startId);
     }
