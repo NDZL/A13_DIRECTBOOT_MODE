@@ -7,7 +7,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import java.io.IOException
 
 private const val LOG_TAG = "MicManager"
@@ -17,15 +16,6 @@ class MicManager {
 
     private var recorder: MediaRecorder? = null
 
-    fun showToast(message: String) {
-        Handler(Looper.getMainLooper()).post {
-            Toast.makeText(
-                requireContext().applicationContext,
-                message,
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
     public fun startRecording() {
         recorder = MediaRecorder().apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
