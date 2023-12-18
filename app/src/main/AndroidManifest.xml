@@ -1,24 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="com.symbol.emdk.permission.EMDK" />
-
-    <uses-permission android:name="com.zebra.securestoragemanager.securecontentprovider.PERMISSION.WRITE"/>
-    <uses-permission android:name="com.zebra.securestoragemanager.securecontentprovider.PERMISSION.READ"/>
-
+    <uses-permission android:name="com.zebra.securestoragemanager.securecontentprovider.PERMISSION.WRITE" />
+    <uses-permission android:name="com.zebra.securestoragemanager.securecontentprovider.PERMISSION.READ" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"   android:usesPermissionFlags="neverForLocation" />
-
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <permission
         android:name="com.ndzl.targetelevator.provider.PERMISSION.READ"
         android:protectionLevel="normal" />
+
+    <queries>
+        <provider android:authorities="com.zebra.securestoragemanager.securecontentprovider" />
+
+        <package android:name="com.zebra.securestoragemanager" />
+        <package android:name="com.symbol.datawedge" />
+        <package android:name="com.symbol.emdk.emdkservice" />
+    </queries>
 
     <application
         android:allowBackup="true"
@@ -30,6 +37,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TargetElevator"
         tools:targetApi="31">
+        <activity
+            android:name=".EmergencyOverlayActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:showOnLockScreen="true"
+            android:directBootAware="true">
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <uses-library
             android:name="com.symbol.emdk"
@@ -37,10 +56,12 @@
 
         <activity
             android:name=".MainActivity"
+            android:directBootAware="true"
             android:exported="true"
-            android:directBootAware="true">
+            android:showOnLockScreen="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -54,65 +75,58 @@
                 android:value="" />
         </activity>
 
-        <receiver android:name=".IntentsReceiver"
+        <receiver
+            android:name=".IntentsReceiver"
             android:directBootAware="true"
             android:enabled="true"
             android:exported="true">
-<!--            <intent-filter>
+
+            <!--
+                <intent-filter>
                 <action android:name="com.ndzl.DW" />
                 <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>-->
+            </intent-filter>
+            -->
 
             <intent-filter>
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
-<!--        <receiver android:name=".UserUnlockedIntentReceiver"
+        <!--
+        <receiver android:name=".UserUnlockedIntentReceiver"
             android:directBootAware="true"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.USER_UNLOCKED" />
             </intent-filter>
-        </receiver>-->
-
+        </receiver>
+        -->
         <provider
-            android:name="com.ndzl.targetelevator.OriginatingAppFileProvider"
+            android:name=".OriginatingAppFileProvider"
             android:authorities="com.ndzl.targetelevator.provider"
             android:exported="false"
             android:grantUriPermissions="true"
             android:readPermission="com.ndzl.targetelevator.provider.PERMISSION.READ">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
 
         <service
             android:name=".BA_FGS"
-            android:exported="true"
             android:directBootAware="true"
             android:enabled="true"
+            android:exported="true"
             android:foregroundServiceType="microphone"
-            >
+            android:showOnLockScreen="true">
             <intent-filter>
                 <action android:name="com.ndzl.DW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
-
-
-
-
     </application>
-
-    <queries>
-        <provider android:authorities="com.zebra.securestoragemanager.securecontentprovider"/>
-        <package android:name="com.zebra.securestoragemanager" />
-
-        <package android:name="com.symbol.datawedge" />
-        <package android:name="com.symbol.emdk.emdkservice" />
-    </queries>
 
 </manifest>

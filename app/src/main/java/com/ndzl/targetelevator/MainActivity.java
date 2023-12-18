@@ -183,6 +183,13 @@ public class MainActivity extends AppCompatActivity {
             */
 
 
+
+//            //String[] perms = {"android.permission.BLUETOOTH_SCAN"};
+//            String[] perms = {"android.permission.SYSTEM_ALERT_WINDOW"};
+//
+//            int permsRequestCode = 200;
+//            requestPermissions(perms, 5005);
+
             //FOR AUDIO CAPTURE TEST
             Intent fgsi = new Intent(getApplicationContext(), BA_FGS.class);
             try {
@@ -199,10 +206,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        String[] perms = {"android.permission.BLUETOOTH_SCAN"};
-
-        int permsRequestCode = 200;
-        //requestPermissions(perms, 3003);
 
     }
 

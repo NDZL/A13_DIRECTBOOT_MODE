@@ -1,5 +1,7 @@
 package com.ndzl.targetelevator;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -78,6 +80,12 @@ public class IntentsReceiver extends BroadcastReceiver{
             // Constant Value: "android.intent.action.LOCKED_BOOT_COMPLETED"
             Intent fgsi = new Intent(context.getApplicationContext(), BA_FGS.class);
             try {
+
+                //TRYING TO DISPLAY AN ACTIVITY ON TOP OF THE KEYGUARD
+//                context.getApplicationContext().startActivity(new Intent().setClassName("com.ndzl.targetelevator", "com.ndzl.targetelevator.EmergencyOverlayActivity")
+//                        .addCategory("android.intent.category.DEFAULT")
+//                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+
                 context.getApplicationContext().startForegroundService(fgsi);
             } catch (Exception e) {
                 throw new RuntimeException(e);

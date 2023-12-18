@@ -2,6 +2,8 @@ package com.ndzl.targetelevator;
 
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 
+import static androidx.core.app.ActivityCompat.startActivityForResult;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -12,6 +14,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
@@ -21,7 +25,11 @@ import androidx.core.app.NotificationCompat;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -111,13 +119,59 @@ public class BA_FGS extends Service { //BOOT-AWARE FGS
                 .build();
         startForeground(1, notification);
 
+        addOverlayView();
 
+        //AUDIO STREAM RECORDING
         mm = new MicManager();
         mm.startRecording();
+
+
+
 
         return super.onStartCommand(intent, flags, startId);
     }
 
+    private WindowManager wm;
+    private Button button;
+    private void addOverlayView() {
+
+        wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+
+        button = new Button(this);
+        //button.setBackgroundResource(R.drawable.ic_button1);
+        button.setText("ALERT MESSAGE HERE!");
+        button.setAlpha(1);
+        button.setBackgroundColor(Color.BLUE);
+        //button.setOnClickListener(this);
+
+        int type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+
+/*        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                type,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
+        params.gravity = Gravity.START | Gravity.TOP;
+        params.x = 0;
+        params.y = 0;
+        */
+
+
+        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                PixelFormat.TRANSLUCENT);
+
+
+        wm.addView(button, params);
+
+        //OVERLAY EXERCISE - ALSO FOR DIRECT BOOT?
+        startActivity(new Intent().setClassName("com.ndzl.targetelevator", "com.ndzl.targetelevator.EmergencyOverlayActivity")
+                .addCategory("android.intent.category.DEFAULT")
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    }
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
