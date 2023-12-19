@@ -6,8 +6,10 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class EmergencyOverlayActivity extends AppCompatActivity {
 
@@ -22,6 +24,14 @@ public class EmergencyOverlayActivity extends AppCompatActivity {
         setTurnScreenOn(true);
 
        // addOverlayView();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        //TEST IN THE EMERGENCY BUTTON SCOPE
+        //KEYS ARE CAPTURE ONLY WHEN THIS ACTIVITY IN THE FOREGROUND
+        Toast.makeText(this, "EmergencyOverlayActivity Key Pressed "+keyCode, Toast.LENGTH_SHORT).show();
+        return super.onKeyDown(keyCode, event);
     }
 
 

@@ -165,7 +165,7 @@ public class BA_FGS extends Service { //BOOT-AWARE FGS
                 PixelFormat.TRANSLUCENT);
 
 
-        wm.addView(button, params);
+        //wm.addView(button, params);
 
         //OVERLAY EXERCISE - ALSO FOR DIRECT BOOT?
         startActivity(new Intent().setClassName("com.ndzl.targetelevator", "com.ndzl.targetelevator.EmergencyOverlayActivity")

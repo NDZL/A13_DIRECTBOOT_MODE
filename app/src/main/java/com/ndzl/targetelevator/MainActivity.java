@@ -13,7 +13,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.symbol.emdk.EMDKBase;
 import com.symbol.emdk.EMDKException;
@@ -209,6 +211,21 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+        //TEST IN THE EMERGENCY BUTTON SCOPE
+        Toast.makeText(this, "Key Long Pressed "+keyCode, Toast.LENGTH_SHORT).show();
+
+        return super.onKeyLongPress(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        //TEST IN THE EMERGENCY BUTTON SCOPE
+        //KEYS ARE CAPTURE ONLY WHEN THIS ACTIVITY IN THE FOREGROUND
+        Toast.makeText(this, "MainActivity Key Pressed "+keyCode, Toast.LENGTH_SHORT).show();
+        return super.onKeyDown(keyCode, event);
+    }
 
     private final String AUTHORITY = "content://com.zebra.securestoragemanager.securecontentprovider/data";
     private final String AUTHORITY_FILE = "content://com.zebra.securestoragemanager.securecontentprovider/files/";
