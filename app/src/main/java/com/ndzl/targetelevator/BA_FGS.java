@@ -166,11 +166,13 @@ public class BA_FGS extends Service { //BOOT-AWARE FGS
 
 
         //wm.addView(button, params);
-
-        //OVERLAY EXERCISE - ALSO FOR DIRECT BOOT?
+/*
+        //OVERLAY EXERCISE - ALSO FOR DIRECT BOOT - usecase: to disaply an alert sent from a server to the user
+        //20.12.2023: YES THIS WORKSin direct boot mode. however when this activity is displayed, the accessibility service does not capture pressed keys. to be tweaked
         startActivity(new Intent().setClassName("com.ndzl.targetelevator", "com.ndzl.targetelevator.EmergencyOverlayActivity")
                 .addCategory("android.intent.category.DEFAULT")
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        */
     }
     @Nullable
     @Override

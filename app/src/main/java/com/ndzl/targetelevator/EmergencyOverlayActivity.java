@@ -26,13 +26,13 @@ public class EmergencyOverlayActivity extends AppCompatActivity {
        // addOverlayView();
     }
 
-    @Override
+/*    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         //TEST IN THE EMERGENCY BUTTON SCOPE
         //KEYS ARE CAPTURE ONLY WHEN THIS ACTIVITY IN THE FOREGROUND
         Toast.makeText(this, "EmergencyOverlayActivity Key Pressed "+keyCode, Toast.LENGTH_SHORT).show();
         return super.onKeyDown(keyCode, event);
-    }
+    }*/
 
 
     private WindowManager wm;

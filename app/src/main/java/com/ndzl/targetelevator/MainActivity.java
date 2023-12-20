@@ -211,10 +211,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
+/*    @Override
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
         //TEST IN THE EMERGENCY BUTTON SCOPE
-        Toast.makeText(this, "Key Long Pressed "+keyCode, Toast.LENGTH_SHORT).show();
+        `Toast.makeText(this, "Key Long Pressed "+keyCode, Toast.LENGTH_SHORT).show();
 
         return super.onKeyLongPress(keyCode, event);
     }
@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
         //KEYS ARE CAPTURE ONLY WHEN THIS ACTIVITY IN THE FOREGROUND
         Toast.makeText(this, "MainActivity Key Pressed "+keyCode, Toast.LENGTH_SHORT).show();
         return super.onKeyDown(keyCode, event);
-    }
+    }*/
 
     private final String AUTHORITY = "content://com.zebra.securestoragemanager.securecontentprovider/data";
     private final String AUTHORITY_FILE = "content://com.zebra.securestoragemanager.securecontentprovider/files/";
