@@ -1,5 +1,11 @@
 # A13_DIRECTBOOT_MODE / TARGET ELEVATOR
-## com.ndzl.targetelevator
+### com.ndzl.targetelevator
+
+
+EMERGENCY BUTTON PoC AND AUDIO RECORDING
+- see the Release page for instructions
+
+---
 
 TESTING
 - A BOOT-AWARE APP WITH FBE FILESYSTEM IN A13
