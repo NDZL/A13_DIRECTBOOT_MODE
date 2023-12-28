@@ -40,7 +40,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 public class BA_FGS extends Service { //BOOT-AWARE FGS
-    public static final String CHANNEL_ID = "ForegroundServiceChannel";
+    private static final String CHANNEL_ID = "ForegroundServiceChannel";
 
     public static final String ACTION_TOGGLE_AUDIOCAPTURE = "TOGGLE_AUDIO_CAPTURE";
     String TAG = "com.ndzl.targetelevator/BA_FGS";
@@ -120,10 +120,9 @@ public class BA_FGS extends Service { //BOOT-AWARE FGS
         startForeground(1, notification);
 
         addOverlayView();
-
         //AUDIO STREAM RECORDING
-        mm = new MicManager();
-        mm.startRecording();
+//        mm = new MicManager();
+//        mm.startRecording();
 
 
 

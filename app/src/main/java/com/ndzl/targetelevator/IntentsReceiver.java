@@ -158,7 +158,7 @@ public class IntentsReceiver extends BroadcastReceiver{
 
         //TO MANAGE USER ACTION ON FGS NOTIFICATION
         if (intent != null && intent.getAction().equals( BA_FGS.ACTION_TOGGLE_AUDIOCAPTURE )){
-            BA_FGS.mm.stopRecording();
+            EmergencyAccessibilityService.Companion.getMm().stopRecording();
         }
 
     }

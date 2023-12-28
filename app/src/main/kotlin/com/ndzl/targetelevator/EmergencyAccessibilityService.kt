@@ -1,30 +1,61 @@
 package com.ndzl.targetelevator
 
 import android.accessibilityservice.AccessibilityService
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.media.AudioManager
 import android.media.ToneGenerator
+import android.os.Build
 import android.os.CountDownTimer
 import android.util.Log
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
+import androidx.core.app.NotificationCompat
 import java.util.Timer
 import kotlin.concurrent.timerTask
 
-
+//best doc on shared audio capturing: https://developer.android.com/guide/topics/media/platform/sharing-audio-input
 class EmergencyAccessibilityService : AccessibilityService() {
 
     val TAG = "EmergencyAccessibilityService"
+
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        Log.d(TAG, "onAccessibiltyEvent" + event.toString())
+
     }
 
     override fun onInterrupt() {
+    }
+
+    companion object{
+         val mm = MicManager( this as Context)
     }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
 
         Log.d(TAG, "accessib service is connected")
+
+        //TRYING CAPTURING AUDIO WHILE CALL IN UNDERWAY
+        getSystemService(WINDOW_SERVICE);
+
+        mm.startRecording()
+
+        createNotificationChannel()
+        val notificationIntent = Intent(this, MainActivity::class.java)
+        val pendingIntent =
+            PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_MUTABLE)
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Accessibility Exerciser")
+            .setContentText("Accessibility FSG")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentIntent(pendingIntent)
+            .build()
+        startForeground(2002, notification)
+        Log.d(TAG, "accessib startForeground just called")
+
     }
 
     var isAlarmOn = false
@@ -50,6 +81,7 @@ class EmergencyAccessibilityService : AccessibilityService() {
                 timerLongPress.cancel()
             } catch (e: Exception) { }
         }
+
         return super.onKeyEvent(event)
     }
 
@@ -90,5 +122,22 @@ class EmergencyAccessibilityService : AccessibilityService() {
             }
         }
         return false
+    }
+
+    //BOOT-AWARE FGS
+    private val CHANNEL_ID = "AccessibilityForegroundServiceChannel"
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val serviceChannel = NotificationChannel(
+                CHANNEL_ID,
+                "NotificatonAccessiblity Name",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            val manager = getSystemService(
+                NotificationManager::class.java
+            )
+            manager.createNotificationChannel(serviceChannel)
+        }
     }
 }
