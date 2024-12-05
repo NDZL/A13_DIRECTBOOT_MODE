@@ -14,7 +14,9 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
 import androidx.core.app.NotificationCompat
+import java.net.URL
 import java.util.Timer
+import java.util.TimerTask
 import kotlin.concurrent.timerTask
 
 //best doc on shared audio capturing: https://developer.android.com/guide/topics/media/platform/sharing-audio-input
@@ -30,7 +32,7 @@ class EmergencyAccessibilityService : AccessibilityService() {
     }
 
     companion object{
-         val mm = MicManager( this as Context)
+         val mm = MicManager( /*this as Context*/)  //EXCP HERE Companion cannot be cast to android.content.Context
     }
 
     override fun onServiceConnected() {
@@ -57,6 +59,20 @@ class EmergencyAccessibilityService : AccessibilityService() {
         Log.d(TAG, "accessib startForeground just called")
 
     }
+
+    var timerRemoteAlertMonitor = Timer()
+        .schedule(timerTask {
+        val cxnt48Emergency = URL("https://cxnt48.com/emergency?get").readText()
+            Log.i(TAG, "cxnt48Emergency: "+cxnt48Emergency)
+
+            //NEXT START ACTIVITY *NOT WORKING* IN DBM IN A14 tc22
+            if(!cxnt48Emergency.contains("NO_EMERGENCY"))
+                startActivity(Intent().setClassName("com.ndzl.targetelevator", "com.ndzl.targetelevator.EmergencyOverlayActivity")
+                    .addCategory(Intent.CATEGORY_DEFAULT)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+
+    }, 1000, 2000)
+
 
     var isAlarmOn = false
     val tg = ToneGenerator(AudioManager.STREAM_ALARM, 100)

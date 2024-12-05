@@ -1,5 +1,6 @@
 package com.ndzl.targetelevator;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
@@ -11,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction("com.ndzl.DW");
         filter.addCategory("android.intent.category.DEFAULT");
 
-        registerReceiver(new IntentsReceiver(), filter);
+        registerReceiver(new IntentsReceiver(), filter, Context.RECEIVER_EXPORTED);
 
         IntentFilter userUnlockedFilter = new IntentFilter();
 

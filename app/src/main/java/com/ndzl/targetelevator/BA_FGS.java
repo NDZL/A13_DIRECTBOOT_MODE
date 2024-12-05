@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import android.os.Handler;
@@ -77,6 +78,7 @@ public class BA_FGS extends Service { //BOOT-AWARE FGS
     }
 
     public static MicManager mm;
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     public void onCreate() {
         super.onCreate();
@@ -93,7 +95,7 @@ public class BA_FGS extends Service { //BOOT-AWARE FGS
         filter.addAction("com.ndzl.DW");
         filter.addAction("TOGGLE_AUDIO_CAPTURE");
         filter.addCategory("android.intent.category.DEFAULT");
-        registerReceiver(new IntentsReceiver(), filter);
+        registerReceiver(new IntentsReceiver(), filter, Context.RECEIVER_EXPORTED);
 
     }
 
@@ -164,14 +166,16 @@ public class BA_FGS extends Service { //BOOT-AWARE FGS
                 PixelFormat.TRANSLUCENT);
 
 
-        //wm.addView(button, params);
+       // wm.addView(button, params);
+
 /*
-        //OVERLAY EXERCISE - ALSO FOR DIRECT BOOT - usecase: to disaply an alert sent from a server to the user
+        //OVERLAY EXERCISE - ALSO FOR DIRECT BOOT - usecase: to display an alert sent from a server to the user
         //20.12.2023: YES THIS WORKSin direct boot mode. however when this activity is displayed, the accessibility service does not capture pressed keys. to be tweaked
         startActivity(new Intent().setClassName("com.ndzl.targetelevator", "com.ndzl.targetelevator.EmergencyOverlayActivity")
                 .addCategory("android.intent.category.DEFAULT")
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        */
+*/
+
     }
     @Nullable
     @Override
