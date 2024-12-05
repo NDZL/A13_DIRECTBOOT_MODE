@@ -20,7 +20,8 @@
 
     ![image](https://github.com/user-attachments/assets/28c397f1-e133-458e-b915-57be495efb90)
 
-
+- APP SETUP
+  - Set a security PIN or Password to work with the DBM.
 
     
 
