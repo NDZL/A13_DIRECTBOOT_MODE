@@ -6,6 +6,23 @@
   - pull the audio recording using `adb pull /enterprise/usr/persist/mic-audio.3gp`
   - Direct boot mode (DBM) file writing and audio capturing works fine on A14
   - Overlay window linked to an emergency, not yet working in A14 DBM
+ 
+- APP SETUP - Permissions need to be set in 3 places
+  - Dangerous permissions: allow
+
+    ![image](https://github.com/user-attachments/assets/65f461ce-a5fb-4ed6-aeaf-d7e2322175da)
+
+  - Advanced permission> allow 'Display over other apps'
+
+    ![image](https://github.com/user-attachments/assets/a2da2865-2ff2-435a-886d-3e3f1bab79f3)
+
+  - Accessibility / Set this flag. Note that the A11Y flag resets every time you rebuild/re-install the app
+
+    ![image](https://github.com/user-attachments/assets/28c397f1-e133-458e-b915-57be495efb90)
+
+
+
+    
 
 EMERGENCY BUTTON PoC AND AUDIO RECORDING
 - see the Release page for instructions
