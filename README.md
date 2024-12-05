@@ -1,7 +1,11 @@
 # A13_DIRECTBOOT_MODE / TARGET ELEVATOR
-### com.ndzl.targetelevator
+### com.ndzl.targetelevator 2024
 
-- touched on Dec.5, 2024
+- RUN ON A14 on Dec.5, 2024
+  - use https://cxnt48.com/emergency to set/unset an emergency
+  - pull the audio recording using `adb pull /enterprise/usr/persist/mic-audio.3gp`
+  - Direct boot mode (DBM) file writing and audio capturing works fine on A14
+  - Overlay window linked to an emergency, not yet working in A14 DBM
 
 EMERGENCY BUTTON PoC AND AUDIO RECORDING
 - see the Release page for instructions
@@ -31,9 +35,3 @@ No such option is available on A13. Secure start-up is always enabled with PIN o
 
 ![image](https://user-images.githubusercontent.com/11386676/223754949-4c1727da-fc80-4f2e-a74b-33d1a043cb0b.png)
 
-
-
-## DATAWEDGE AND INTENTS DELIVERY
-- IN A13 NO METHOD WORKS BUT BROADCAST DELIVERY
-- IN A13 BOTH STARTSERVICE AND STARTFOREGROUNDSERVICE FAIL WITH MESSAGE "Unable to start service Intent { act=com.ndzl.DW cat=[android.intent.category.DEFAULT] cmp=com.ndzl.targetelevator/.DW_FGS (has extras) } U=0: not found"
-- IN A11 ALL THREE METHODS WORK
