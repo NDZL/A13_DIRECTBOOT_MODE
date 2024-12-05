@@ -1,6 +1,7 @@
 # A13_DIRECTBOOT_MODE / TARGET ELEVATOR
 ### com.ndzl.targetelevator
 
+- touched on Dec.5, 2024
 
 EMERGENCY BUTTON PoC AND AUDIO RECORDING
 - see the Release page for instructions
