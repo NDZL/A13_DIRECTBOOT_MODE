@@ -2,14 +2,18 @@ package com.ndzl.targetelevator;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import android.Manifest;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -72,16 +76,12 @@ public class MainActivity extends AppCompatActivity {
 
         TextView tvOut = findViewById(R.id.tvout);
 
-        //REGISTER  RECEIVER
+        //-== ENSURE THESE ACTION/CATEGORY ARE DECLARED IN THE MANIFEST.XML ==-
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.intent.action.LOCKED_BOOT_COMPLETED");
-
-        filter.addAction("com.ndzl.DW");
-        filter.addCategory("android.intent.category.DEFAULT");
-
         registerReceiver(new IntentsReceiver(), filter, Context.RECEIVER_EXPORTED);
 
-        IntentFilter userUnlockedFilter = new IntentFilter();
+        //IntentFilter userUnlockedFilter = new IntentFilter();
 
         //userUnlockedFilter.addAction("android.intent.action.USER_UNLOCKED");
         //registerReceiver(new UserUnlockedIntentReceiver(), userUnlockedFilter);
@@ -213,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
 
 /*    @Override
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {

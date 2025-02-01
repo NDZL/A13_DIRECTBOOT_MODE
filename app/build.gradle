@@ -10,7 +10,7 @@ android {
         minSdk 30
         targetSdk 34
         versionCode 1
-        versionName "1.1-A14"
+        versionName "2.0-A14 refactoring"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

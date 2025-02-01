@@ -39,10 +39,14 @@ class MicManager(/*context: Context*/) {
             try {
                 prepare()
             } catch (e: IOException) {
-                Log.e(LOG_TAG, "prepare() failed")
+                Log.e(LOG_TAG, "prepare() audio failed")
             }
 
-            start()
+            try {
+                start()
+            } catch (e: Exception) {
+                Log.e(LOG_TAG, "start() audio failed "+e.message)
+            }
             Log.i(LOG_TAG, "AUDIO RECORDING STARTED")
             isRecOn = true
         }

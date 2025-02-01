@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -136,6 +137,7 @@ public class IntentsReceiver extends BroadcastReceiver{
 
         if (intent != null && intent.getAction().equals("com.ndzl.DW")){
             String barcode_value = intent.getStringExtra("com.symbol.datawedge.data_string");
+            Log.d("com.ndzl.targetelevator", "==SCANNED BARCODE=="+barcode_value);
             String _tbw = "\n"+ DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+" - com.ndzl.DW received via BROADCAST intent <"+barcode_value+">";
             showContexedToast(context, _tbw);
             try {
@@ -156,8 +158,17 @@ public class IntentsReceiver extends BroadcastReceiver{
 
         }
 
+        if (intent != null && intent.getAction().equals("com.symbol.datawedge.api.NOTIFICATION_ACTION")) {
+            Bundle b = intent.getBundleExtra("com.symbol.datawedge.api.NOTIFICATION");
+            String NOTIFICATION_TYPE = b.getString("NOTIFICATION_TYPE");
+            if (NOTIFICATION_TYPE != null && NOTIFICATION_TYPE.equals("SCANNER_STATUS")) {
+                String SCANNER_STATUS = b.getString("STATUS");
+                Log.d("com.ndzl.targetelevator", "#NDZL #DATAWEDGE ==SCANNER STATUS=="+SCANNER_STATUS);
+            }
+        }
+
         //TO MANAGE USER ACTION ON FGS NOTIFICATION
-        if (intent != null && intent.getAction().equals( BA_FGS.ACTION_TOGGLE_AUDIOCAPTURE )){
+        if (intent != null && intent.getAction().equals( "TURN_OFF_AUDIO_CAPTURE")){
             EmergencyAccessibilityService.Companion.getMm().stopRecording();
         }
 
