@@ -18,9 +18,11 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import android.os.Handler;
@@ -39,10 +41,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
+
+//ANR in com.ndzl.targetelevator - nice catch!
+//Reason: A foreground service of FOREGROUND_SERVICE_TYPE_SHORT_SERVICE did not stop within a timeout: ComponentInfo{com.ndzl.targetelevator/com.ndzl.targetelevator.BA_FGS}
+
+
 public class BA_FGS extends Service { //BOOT-AWARE FGS
     private static final String CHANNEL_ID = "ForegroundServiceChannel";
-
-    public static final String ACTION_TOGGLE_AUDIOCAPTURE = "TOGGLE_AUDIO_CAPTURE";
     String TAG = "com.ndzl.targetelevator/BA_FGS";
 
     public void showToast(String message) {
@@ -76,7 +81,8 @@ public class BA_FGS extends Service { //BOOT-AWARE FGS
         fos.close();
     }
 
-    public static MicManager mm;
+
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     public void onCreate() {
         super.onCreate();
@@ -88,23 +94,32 @@ public class BA_FGS extends Service { //BOOT-AWARE FGS
         String _tbw = "\nSSM file content in FGS run after LOCKED_BOOT_COMPLETED: "+ ssmQueryFile(ssmContext, false);
         try {logToSampleDPS(_tbw);} catch (IOException e) {}
 
-        //DW INTENT RECEIVER? TESTING! -== ENSURE THESE ACTION/CATEGORY ARE DECLARED IN THE MANIFEST.XML ==-
+        //IntentsReceiver REGISTERED BOTH IN MAINACTIVITY AND HERE
         IntentFilter filter = new IntentFilter();
         filter.addAction("com.ndzl.DW");
-        filter.addAction("TOGGLE_AUDIO_CAPTURE");
+        filter.addAction("com.symbol.datawedge.api.NOTIFICATION_ACTION");  //NDZL JAN.2025, test to see if this is received in direct boot mode
+        filter.addAction("TURN_OFF_AUDIO_CAPTURE"); //not in the right place here - move to a specific receiver
         filter.addCategory("android.intent.category.DEFAULT");
-        registerReceiver(new IntentsReceiver(), filter);
+        registerReceiver(new IntentsReceiver(), filter, Context.RECEIVER_EXPORTED);
+
+        registerForDWnotifications();
 
     }
+    
+    void registerForDWnotifications() {
+        Bundle b = new Bundle();
+        b.putString("com.symbol.datawedge.api.APPLICATION_NAME","com.ndzl.targetelevator");
+        b.putString("com.symbol.datawedge.api.NOTIFICATION_TYPE","SCANNER_STATUS");
+        Intent i = new Intent();
+        i.setAction("com.symbol.datawedge.api.ACTION");
+        i.putExtra("com.symbol.datawedge.api.REGISTER_FOR_NOTIFICATION", b);
+        this.sendBroadcast(i);
+    }   
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         Log.d(TAG, "onStartCommand");
-
-        Intent toggleWifenceIntent = new Intent();
-        toggleWifenceIntent.setAction( ACTION_TOGGLE_AUDIOCAPTURE );
-        PendingIntent toggleMICPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 4004, toggleWifenceIntent, PendingIntent.FLAG_UPDATE_CURRENT|FLAG_IMMUTABLE);
 
 
         createNotificationChannel();
@@ -115,16 +130,10 @@ public class BA_FGS extends Service { //BOOT-AWARE FGS
                 .setContentText("testing FGS")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentIntent(pendingIntent)
-                .addAction(R.drawable.ic_launcher_background, "AUDIO REC STOP", toggleMICPendingIntent)
                 .build();
         startForeground(1, notification);
 
         addOverlayView();
-        //AUDIO STREAM RECORDING
-//        mm = new MicManager();
-//        mm.startRecording();
-
-
 
 
         return super.onStartCommand(intent, flags, startId);
@@ -164,14 +173,16 @@ public class BA_FGS extends Service { //BOOT-AWARE FGS
                 PixelFormat.TRANSLUCENT);
 
 
-        //wm.addView(button, params);
+       // wm.addView(button, params);
+
 /*
-        //OVERLAY EXERCISE - ALSO FOR DIRECT BOOT - usecase: to disaply an alert sent from a server to the user
+        //OVERLAY EXERCISE - ALSO FOR DIRECT BOOT - usecase: to display an alert sent from a server to the user
         //20.12.2023: YES THIS WORKSin direct boot mode. however when this activity is displayed, the accessibility service does not capture pressed keys. to be tweaked
         startActivity(new Intent().setClassName("com.ndzl.targetelevator", "com.ndzl.targetelevator.EmergencyOverlayActivity")
                 .addCategory("android.intent.category.DEFAULT")
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        */
+*/
+
     }
     @Nullable
     @Override
