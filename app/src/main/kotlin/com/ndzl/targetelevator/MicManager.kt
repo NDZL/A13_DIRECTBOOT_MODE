@@ -12,7 +12,7 @@ import java.io.IOException
 
 private const val LOG_TAG = "MicManager"
 
-class MicManager(context: Context) {
+class MicManager(/*context: Context*/) {
 
     //private var tempRecFile: String = "/enterprise/usr/persist/mic-audio-temp.3gp"
     private var fileName: String = "/enterprise/usr/persist/mic-audio.3gp"
@@ -24,7 +24,7 @@ class MicManager(context: Context) {
         return isRecOn
     }
 
-    private val ctx = context
+    //private val ctx = context
 
 
 
